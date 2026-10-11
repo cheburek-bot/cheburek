@@ -5,5 +5,5 @@
 .env
 
 # Application data
-images/
-data/
+data/*
+!data/.gitkeep

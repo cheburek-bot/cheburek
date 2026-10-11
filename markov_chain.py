@@ -82,12 +82,12 @@ class MarkovChain:
         return sum(len(inner) for inner in self.chain.values())
 
     def save(self):
-        with open("data.json", "w", encoding="utf8") as f:
+        with open("data/words.json", "w", encoding="utf8") as f:
             json.dump(self.chain, f, indent=2, ensure_ascii=False)
 
     def load(self):
-        if not os.path.isfile("data.json"):
+        if not os.path.isfile("data/words.json"):
             self.save()
 
-        with open("data.json", "r", encoding="utf8") as f:
+        with open("data/words.json", "r", encoding="utf8") as f:
             self.chain = json.load(f)

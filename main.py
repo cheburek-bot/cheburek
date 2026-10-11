@@ -65,7 +65,7 @@ async def on_message(ctx: discord.Message):
 
     # Save image attachments
 
-    image_dir = Path("./images")
+    image_dir = Path("./data/images")
     image_dir.mkdir(parents=True, exist_ok=True)
 
     for a in ctx.attachments:
@@ -153,7 +153,7 @@ async def generate(interaction: discord.Interaction):
 @bot.command(description="Сгенерировать демотиватор")
 async def demotivator(interaction: discord.Interaction):
     message = chain.generate_message(random.randint(2, 8))
-    image = "./images/" + random.choice(os.listdir("./images"))
+    image = "./data/images/" + random.choice(os.listdir("./data/images"))
 
     img = meme.create_demotivator(message, image)
 
