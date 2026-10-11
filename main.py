@@ -152,12 +152,18 @@ class GenerateView(discord.ui.View):
     description_localizations={"ru": "Сгенерировать сообщение"},
 )
 async def generate(interaction: discord.Interaction):
-    try:
-        message = chain.generate_message(random.randint(2, 12))
-        await interaction.response.send_message(message, view=GenerateView())
-    except Exception as e:
-        print("Failed to generate message:", e)
-        await interaction.response.send_message("Произошла ошибка!", ephemeral=True)
+    if chain.get_words_count() == 0:
+        embed = discord.Embed(
+            title="Ошибка",
+            description="Не хватает слов! Отправьте больше сообщений и повторите команду.",
+            color=discord.Color.red(),
+        )
+        await interaction.respond(embed=embed)
+        return
+
+    message = chain.generate_message(random.randint(2, 12))
+
+    await interaction.response.send_message(message, view=GenerateView())
 
 
 @bot.command(
@@ -166,6 +172,15 @@ async def generate(interaction: discord.Interaction):
 )
 async def fresco(interaction: discord.Interaction):
     await interaction.response.defer()
+
+    if chain.get_words_count() == 0:
+        embed = discord.Embed(
+            title="Ошибка",
+            description="Не хватает слов! Отправьте больше сообщений и повторите команду.",
+            color=discord.Color.red(),
+        )
+        await interaction.respond(embed=embed)
+        return
 
     message = chain.generate_message(random.randint(2, 8))
     img = meme_gen.create_fresco(message)
@@ -186,8 +201,28 @@ async def fresco(interaction: discord.Interaction):
 async def demotivator(interaction: discord.Interaction):
     await interaction.response.defer()
 
+    images = os.listdir("./data/images")
+
+    if len(images) == 0:
+        embed = discord.Embed(
+            title="Ошибка",
+            description="Не хватает картинок! Отправьте больше изображений и повторите команду.",
+            color=discord.Color.red(),
+        )
+        await interaction.respond(embed=embed)
+        return
+
+    if chain.get_words_count() == 0:
+        embed = discord.Embed(
+            title="Ошибка",
+            description="Не хватает слов! Отправьте больше сообщений и повторите команду.",
+            color=discord.Color.red(),
+        )
+        await interaction.respond(embed=embed)
+        return
+
     message = chain.generate_message(random.randint(2, 8))
-    image = "./data/images/" + random.choice(os.listdir("./data/images"))
+    image = "./data/images/" + random.choice(images)
 
     img = meme_gen.create_demotivator(message, image)
 
@@ -207,10 +242,30 @@ async def demotivator(interaction: discord.Interaction):
 async def meme(interaction: discord.Interaction):
     await interaction.response.defer()
 
+    images = os.listdir("./data/images")
+
+    if len(images) == 0:
+        embed = discord.Embed(
+            title="Ошибка",
+            description="Изображений не найдено!",
+            color=discord.Color.red(),
+        )
+        await interaction.respond(embed=embed)
+        return
+
+    if chain.get_words_count() == 0:
+        embed = discord.Embed(
+            title="Ошибка",
+            description="Не хватает слов! Отправьте больше сообщений и повторите команду.",
+            color=discord.Color.red(),
+        )
+        await interaction.respond(embed=embed)
+        return
+
+    image = "./data/images/" + random.choice(images)
+
     message1 = chain.generate_message(random.randint(2, 5))
     message2 = chain.generate_message(random.randint(2, 5))
-
-    image = "./data/images/" + random.choice(os.listdir("./data/images"))
 
     img = meme_gen.create_meme(message1, message2, image)
 
