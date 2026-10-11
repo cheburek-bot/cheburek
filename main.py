@@ -20,6 +20,8 @@ chain.load()
 
 meme = MemeGenerator()
 
+Path("data/images").mkdir(parents=True, exist_ok=True)
+
 intents = discord.Intents.default()
 intents.message_content = True
 
