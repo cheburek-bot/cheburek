@@ -55,7 +55,7 @@ async def on_message(ctx: discord.Message):
     # Clean up and process the words
 
     clean_content = re.sub(
-        r"^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$",
+        r"https?:\/\/[^\s)\]]+",
         "",
         ctx.content,
     )
