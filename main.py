@@ -152,6 +152,22 @@ async def generate(interaction: discord.Interaction):
         await interaction.response.send_message("Произошла ошибка!", ephemeral=True)
 
 
+@bot.command(description="Сгенерировать мем Жак Фреско")
+async def fresco(interaction: discord.Interaction):
+    await interaction.response.defer()
+
+    message = chain.generate_message(random.randint(2, 8))
+    img = meme.create_fresco(message)
+
+    with io.BytesIO() as image_binary:
+        img.save(image_binary, "PNG")
+        image_binary.seek(0)
+
+        await interaction.respond(
+            file=discord.File(fp=image_binary, filename="fresco.png")
+        )
+
+
 @bot.command(description="Сгенерировать демотиватор")
 async def demotivator(interaction: discord.Interaction):
     await interaction.response.defer()
