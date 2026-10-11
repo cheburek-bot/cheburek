@@ -70,14 +70,19 @@ async def on_message(ctx: discord.Message):
     image_dir = Path("./data/images")
     image_dir.mkdir(parents=True, exist_ok=True)
 
+    new_images = 0
+
     for a in ctx.attachments:
         if (
             a.content_type == "image/png"
             or a.content_type == "image/jpeg"
             or a.content_type == "image/webp"
         ):
-            await a.save(image_dir / str(ctx.id))
-            print(f"🌅 New image from {ctx.author}")
+            await a.save(image_dir / str(a.id))
+            new_images += 1
+
+    if new_images > 0:
+        print(f"🌅 {new_images} new image(s) from {ctx.author}")
 
     # Reply when someone mentioned/replied to bot
 
