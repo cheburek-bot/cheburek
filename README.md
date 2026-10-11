@@ -4,23 +4,34 @@ Discord bot that generates text messages using the Markov chain.
 
 ## Features
 
-- Text generation based on the messages that were sent by users
-- Meme image generation
-- Statistics of the learned words
+- Per-server data storage (words & images)
+- Text generation based on messages sent by users
+- Learned words & word connections statistics
+- Meme generation
 
 ## How to start
 
-Run Cheburek using Docker:
+Run Cheburek using Docker Compose:
 
-```sh
-docker run --name cheburek \
-    -e TOKEN="your Discord bot token" \
-    -e START_WORD_TYPE="random" \
-    -e MESSAGE_CHANCE="0.1" \
-    ghcr.io/zorreth/cheburek:latest
-```
+1. Create a file named `docker-compose.yml`:
+   ```yaml
+   services:
+     cheburek:
+       image: ghcr.io/zorreth/cheburek:latest
+       restart: always
+       environment:
+         - TOKEN=<your bot token>
+         - START_WORD_TYPE=random
+         - MESSAGE_CHANCE=0.05
+       volumes:
+         - ./data:/usr/src/app/data
+   ```
+2. Run Cheburek:
+   ```sh
+   docker compose up -d
+   ```
 
-Or clone repository and run it using uv:
+Or clone repository and run Cheburek using uv:
 
 1. Clone the repository:
    ```sh
