@@ -18,7 +18,7 @@ load_dotenv()
 chain = MarkovChain()
 chain.load()
 
-meme = MemeGenerator()
+meme_gen = MemeGenerator()
 
 Path("data/images").mkdir(parents=True, exist_ok=True)
 
@@ -136,7 +136,7 @@ class GenerateView(discord.ui.View):
         if not interaction.message:
             return
 
-        img = meme.create_fresco(interaction.message.content)
+        img = meme_gen.create_fresco(interaction.message.content)
 
         with io.BytesIO() as image_binary:
             img.save(image_binary, "PNG")
@@ -168,7 +168,7 @@ async def fresco(interaction: discord.Interaction):
     await interaction.response.defer()
 
     message = chain.generate_message(random.randint(2, 8))
-    img = meme.create_fresco(message)
+    img = meme_gen.create_fresco(message)
 
     with io.BytesIO() as image_binary:
         img.save(image_binary, "PNG")
@@ -189,7 +189,7 @@ async def demotivator(interaction: discord.Interaction):
     message = chain.generate_message(random.randint(2, 8))
     image = "./data/images/" + random.choice(os.listdir("./data/images"))
 
-    img = meme.create_demotivator(message, image)
+    img = meme_gen.create_demotivator(message, image)
 
     with io.BytesIO() as image_binary:
         img.save(image_binary, "PNG")
@@ -197,6 +197,29 @@ async def demotivator(interaction: discord.Interaction):
 
         await interaction.respond(
             file=discord.File(fp=image_binary, filename="demotivator.png")
+        )
+
+
+@bot.command(
+    description="Generate a meme",
+    description_localizations={"ru": "Сгенерировать мем"},
+)
+async def meme(interaction: discord.Interaction):
+    await interaction.response.defer()
+
+    message1 = chain.generate_message(random.randint(2, 5))
+    message2 = chain.generate_message(random.randint(2, 5))
+
+    image = "./data/images/" + random.choice(os.listdir("./data/images"))
+
+    img = meme_gen.create_meme(message1, message2, image)
+
+    with io.BytesIO() as image_binary:
+        img.save(image_binary, "PNG")
+        image_binary.seek(0)
+
+        await interaction.respond(
+            file=discord.File(fp=image_binary, filename="meme.png")
         )
 
 

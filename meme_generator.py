@@ -63,3 +63,52 @@ class MemeGenerator:
         )
 
         return template
+
+    def create_meme(self, message1: str, message2: str, image_path: str) -> Image.Image:
+        font = ImageFont.truetype("./assets/fonts/impact.ttf", 36)
+
+        img = Image.open(image_path)
+        img = img.resize((640, 480), Image.Resampling.LANCZOS)
+        draw = ImageDraw.Draw(img)
+
+        lines1 = textwrap.wrap(message1, width=30)
+        lines2 = textwrap.wrap(message2, width=30)
+
+        text1 = "\n".join(lines1)
+        text2 = "\n".join(lines2)
+
+        draw.multiline_text(
+            (img.width / 2, 50),
+            text1,
+            fill="white",
+            font=font,
+            spacing=4,
+            anchor="ms",
+            align="center",
+            stroke_width=5,
+            stroke_fill="black",
+        )
+
+        bbox = draw.multiline_textbbox(
+            (0, 0),
+            text2,
+            font=font,
+            spacing=4,
+            align="center",
+        )
+
+        text_height = bbox[3] - bbox[1]
+
+        draw.multiline_text(
+            (img.width / 2, img.height - 20),
+            text2,
+            fill="white",
+            font=font,
+            spacing=4,
+            anchor="md",
+            align="center",
+            stroke_width=5,
+            stroke_fill="black",
+        )
+
+        return img
