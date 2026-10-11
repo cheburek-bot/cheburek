@@ -165,7 +165,7 @@ async def demotivator(interaction: discord.Interaction):
         img.save(image_binary, "PNG")
         image_binary.seek(0)
 
-        await interaction.response.send_message(
+        await interaction.respond(
             file=discord.File(fp=image_binary, filename="demotivator.png")
         )
 
