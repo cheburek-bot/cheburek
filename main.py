@@ -173,7 +173,7 @@ async def stats(interaction: discord.Interaction):
     words = chain.get_words_count()
     links = chain.get_links_count()
 
-    images = len(os.listdir("./images"))
+    images = len(os.listdir("./data/images"))
 
     embed = discord.Embed(
         title="Статистика",
