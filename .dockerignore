@@ -1,0 +1,9 @@
+.git/
+.DS_Store
+
+.venv/
+.env
+
+# Application data
+images/
+data/
