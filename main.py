@@ -16,11 +16,7 @@ from meme_generator import MemeGenerator
 load_dotenv()
 
 chain = MarkovChain()
-chain.load()
-
 meme_gen = MemeGenerator()
-
-Path("data/images").mkdir(parents=True, exist_ok=True)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -30,26 +26,12 @@ bot = discord.Bot(intents=intents)
 
 @bot.event
 async def on_ready():
-    bot.loop.create_task(update_status())
-
     print(f"🥟 Logged in as {bot.user}!")
-
-
-async def update_status():
-    while True:
-        words = chain.get_words_count()
-
-        activity = discord.Activity(
-            type=discord.ActivityType.watching, name=f"{words} слов"
-        )
-
-        await bot.change_presence(activity=activity)
-        await asyncio.sleep(180)  # 3 minutes
 
 
 @bot.event
 async def on_message(ctx: discord.Message):
-    if ctx.author.bot:
+    if ctx.author.bot or not ctx.guild:
         return
 
     # Clean up and process the words
@@ -63,11 +45,11 @@ async def on_message(ctx: discord.Message):
     clean_content = re.sub(r"\s+", " ", clean_content).strip()
 
     words = clean_content.split(" ")
-    chain.process_words(words)
+    chain.process_words(words, ctx.guild.id)
 
     # Save image attachments
 
-    image_dir = Path("./data/images")
+    image_dir = Path(f"./data/{ctx.guild.id}/images")
     image_dir.mkdir(parents=True, exist_ok=True)
 
     new_images = 0
@@ -82,7 +64,7 @@ async def on_message(ctx: discord.Message):
             new_images += 1
 
     if new_images > 0:
-        print(f"🌅 {new_images} new image(s) from {ctx.author}")
+        print(f"🌅 {new_images} new image(s) from {ctx.author} ({ctx.guild.name})")
 
     # Reply when someone mentioned/replied to bot
 
@@ -95,9 +77,8 @@ async def on_message(ctx: discord.Message):
     )
 
     if mentioned or replied:
-        message = chain.generate_message(random.randint(2, 12))
-
         try:
+            message = chain.generate_message(random.randint(2, 12), ctx.guild.id)
             await ctx.reply(message)
         except Exception as e:
             print("Failed to reply a message:", e)
@@ -105,9 +86,8 @@ async def on_message(ctx: discord.Message):
         # Try a chance to generate and send a message
 
         if random.random() < float(os.environ["MESSAGE_CHANCE"]):
-            message = chain.generate_message(random.randint(2, 12))
-
             try:
+                message = chain.generate_message(random.randint(2, 12), ctx.guild.id)
                 await ctx.channel.send(message)
             except Exception as e:
                 print("Failed to send message:", e)
@@ -121,9 +101,12 @@ class GenerateView(discord.ui.View):
     async def regenerate(
         self, button: discord.ui.Button, interaction: discord.Interaction
     ):
+        if not interaction.guild_id:
+            return
+
         await interaction.response.defer()
 
-        message = chain.generate_message(random.randint(2, 12))
+        message = chain.generate_message(random.randint(2, 12), interaction.guild_id)
 
         await interaction.edit_original_response(
             content=message, attachments=[], view=self
@@ -152,7 +135,10 @@ class GenerateView(discord.ui.View):
     description_localizations={"ru": "Сгенерировать сообщение"},
 )
 async def generate(interaction: discord.Interaction):
-    if chain.get_words_count() == 0:
+    if not interaction.guild_id:
+        return
+
+    if chain.get_words_count(interaction.guild_id) == 0:
         embed = discord.Embed(
             title="Ошибка",
             description="Не хватает слов! Отправьте больше сообщений и повторите команду.",
@@ -161,7 +147,7 @@ async def generate(interaction: discord.Interaction):
         await interaction.respond(embed=embed)
         return
 
-    message = chain.generate_message(random.randint(2, 12))
+    message = chain.generate_message(random.randint(2, 12), interaction.guild_id)
 
     await interaction.response.send_message(message, view=GenerateView())
 
@@ -171,9 +157,12 @@ async def generate(interaction: discord.Interaction):
     description_localizations={"ru": "Сгенерировать мем Жак Фреско"},
 )
 async def fresco(interaction: discord.Interaction):
+    if not interaction.guild_id:
+        return
+
     await interaction.response.defer()
 
-    if chain.get_words_count() == 0:
+    if chain.get_words_count(interaction.guild_id) == 0:
         embed = discord.Embed(
             title="Ошибка",
             description="Не хватает слов! Отправьте больше сообщений и повторите команду.",
@@ -182,7 +171,7 @@ async def fresco(interaction: discord.Interaction):
         await interaction.respond(embed=embed)
         return
 
-    message = chain.generate_message(random.randint(2, 8))
+    message = chain.generate_message(random.randint(2, 8), interaction.guild_id)
     img = meme_gen.create_fresco(message)
 
     with io.BytesIO() as image_binary:
@@ -199,20 +188,26 @@ async def fresco(interaction: discord.Interaction):
     description_localizations={"ru": "Сгенерировать демотиватор"},
 )
 async def demotivator(interaction: discord.Interaction):
+    if not interaction.guild_id:
+        return
+
     await interaction.response.defer()
 
-    images = os.listdir("./data/images")
+    images_dir = Path(f"./data/{interaction.guild_id}/images")
+    images_dir.mkdir(parents=True, exist_ok=True)
+
+    images = os.listdir(images_dir)
 
     if len(images) == 0:
         embed = discord.Embed(
             title="Ошибка",
-            description="Не хватает картинок! Отправьте больше изображений и повторите команду.",
+            description="Изображений не найдено! Отправьте больше изображений и повторите попытку.",
             color=discord.Color.red(),
         )
         await interaction.respond(embed=embed)
         return
 
-    if chain.get_words_count() == 0:
+    if chain.get_words_count(interaction.guild_id) == 0:
         embed = discord.Embed(
             title="Ошибка",
             description="Не хватает слов! Отправьте больше сообщений и повторите команду.",
@@ -221,8 +216,8 @@ async def demotivator(interaction: discord.Interaction):
         await interaction.respond(embed=embed)
         return
 
-    message = chain.generate_message(random.randint(2, 8))
-    image = "./data/images/" + random.choice(images)
+    message = chain.generate_message(random.randint(2, 8), interaction.guild_id)
+    image = f"./data/{interaction.guild_id}/images/{random.choice(images)}"
 
     img = meme_gen.create_demotivator(message, image)
 
@@ -240,20 +235,26 @@ async def demotivator(interaction: discord.Interaction):
     description_localizations={"ru": "Сгенерировать мем"},
 )
 async def meme(interaction: discord.Interaction):
+    if not interaction.guild_id:
+        return
+
     await interaction.response.defer()
 
-    images = os.listdir("./data/images")
+    images_dir = Path(f"./data/{interaction.guild_id}/images")
+    images_dir.mkdir(parents=True, exist_ok=True)
+
+    images = os.listdir(images_dir)
 
     if len(images) == 0:
         embed = discord.Embed(
             title="Ошибка",
-            description="Изображений не найдено!",
+            description="Изображений не найдено! Отправьте больше изображений и повторите попытку.",
             color=discord.Color.red(),
         )
         await interaction.respond(embed=embed)
         return
 
-    if chain.get_words_count() == 0:
+    if chain.get_words_count(interaction.guild_id) == 0:
         embed = discord.Embed(
             title="Ошибка",
             description="Не хватает слов! Отправьте больше сообщений и повторите команду.",
@@ -262,10 +263,10 @@ async def meme(interaction: discord.Interaction):
         await interaction.respond(embed=embed)
         return
 
-    image = "./data/images/" + random.choice(images)
+    image = f"./data/{interaction.guild_id}/images/{random.choice(images)}"
 
-    message1 = chain.generate_message(random.randint(2, 5))
-    message2 = chain.generate_message(random.randint(2, 5))
+    message1 = chain.generate_message(random.randint(2, 5), interaction.guild_id)
+    message2 = chain.generate_message(random.randint(2, 5), interaction.guild_id)
 
     img = meme_gen.create_meme(message1, message2, image)
 
@@ -283,13 +284,26 @@ async def meme(interaction: discord.Interaction):
     description_localizations={"ru": "Показать статистику"},
 )
 async def stats(interaction: discord.Interaction):
-    words = chain.get_words_count()
-    links = chain.get_links_count()
+    if not interaction.guild_id:
+        return
 
-    images = len(os.listdir("./data/images"))
+    words = chain.get_words_count(interaction.guild_id)
+    links = chain.get_links_count(interaction.guild_id)
+
+    images_dir = Path(f"./data/{interaction.guild_id}/images")
+    images_dir.mkdir(parents=True, exist_ok=True)
+
+    images = os.listdir(images_dir)
+
+    images = len(os.listdir(f"./data/{interaction.guild_id}/images"))
+
+    if interaction.guild:
+        guild_name = interaction.guild.name
+    else:
+        guild_name = interaction.guild_id
 
     embed = discord.Embed(
-        title="Статистика",
+        title=f"Статистика ({guild_name})",
         description="Количество изученных данных",
         color=discord.Color.orange(),
     )
