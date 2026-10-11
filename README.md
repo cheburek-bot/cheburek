@@ -13,7 +13,7 @@ Discord bot that generates text messages using the Markov chain.
 
 Run Cheburek using Docker Compose:
 
-1. Create a file named `docker-compose.yml`:
+1. Create a file named `docker-compose.yml`
    ```yaml
    services:
      cheburek:
@@ -26,18 +26,22 @@ Run Cheburek using Docker Compose:
        volumes:
          - ./data:/usr/src/app/data
    ```
-2. Run Cheburek:
+2. Run Cheburek
    ```sh
    docker compose up -d
    ```
 
 Or clone repository and run Cheburek using uv:
 
-1. Clone the repository:
+1. Clone the repository
    ```sh
    git clone https://github.com/zorreth/cheburek
    ```
-2. Start the bot using uv:
+2. Copy and configure `.env`
+   ```sh
+   cp .env.example .env
+   ```
+3. Start the bot using uv
    ```sh
    uv run main.py
    ```
