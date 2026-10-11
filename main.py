@@ -154,6 +154,8 @@ async def generate(interaction: discord.Interaction):
 
 @bot.command(description="Сгенерировать демотиватор")
 async def demotivator(interaction: discord.Interaction):
+    await interaction.response.defer()
+
     message = chain.generate_message(random.randint(2, 8))
     image = "./data/images/" + random.choice(os.listdir("./data/images"))
 
