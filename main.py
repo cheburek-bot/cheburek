@@ -142,7 +142,10 @@ class GenerateView(discord.ui.View):
             )
 
 
-@bot.command(description="Сгенерировать сообщение")
+@bot.command(
+    description="Generate a message",
+    description_localizations={"ru": "Сгенерировать сообщение"},
+)
 async def generate(interaction: discord.Interaction):
     try:
         message = chain.generate_message(random.randint(2, 12))
@@ -152,7 +155,10 @@ async def generate(interaction: discord.Interaction):
         await interaction.response.send_message("Произошла ошибка!", ephemeral=True)
 
 
-@bot.command(description="Сгенерировать мем Жак Фреско")
+@bot.command(
+    description="Generate a Jacque Fresco meme",
+    description_localizations={"ru": "Сгенерировать мем Жак Фреско"},
+)
 async def fresco(interaction: discord.Interaction):
     await interaction.response.defer()
 
@@ -168,7 +174,10 @@ async def fresco(interaction: discord.Interaction):
         )
 
 
-@bot.command(description="Сгенерировать демотиватор")
+@bot.command(
+    description="Generate a demotivator",
+    description_localizations={"ru": "Сгенерировать демотиватор"},
+)
 async def demotivator(interaction: discord.Interaction):
     await interaction.response.defer()
 
@@ -186,7 +195,10 @@ async def demotivator(interaction: discord.Interaction):
         )
 
 
-@bot.command(description="Показать статистику")
+@bot.command(
+    description="Display bot stats",
+    description_localizations={"ru": "Показать статистику"},
+)
 async def stats(interaction: discord.Interaction):
     words = chain.get_words_count()
     links = chain.get_links_count()
