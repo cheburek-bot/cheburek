@@ -1,14 +1,11 @@
-import asyncio
 import io
 import os
 import random
 import re
-import textwrap
 from pathlib import Path
 
 import discord
 from dotenv import load_dotenv
-from PIL import Image, ImageDraw, ImageFont
 
 from markov_chain import MarkovChain
 from meme_generator import MemeGenerator
@@ -54,12 +51,10 @@ async def on_message(ctx: discord.Message):
 
     new_images = 0
 
+    allowed_types = {"image/png", "image/jpeg", "image/webp"}
+
     for a in ctx.attachments:
-        if (
-            a.content_type == "image/png"
-            or a.content_type == "image/jpeg"
-            or a.content_type == "image/webp"
-        ):
+        if a.content_type in allowed_types:
             await a.save(image_dir / str(a.id))
             new_images += 1
 
@@ -71,7 +66,7 @@ async def on_message(ctx: discord.Message):
     mentioned = bot.user in ctx.mentions
 
     replied = (
-        ctx.reference != None
+        ctx.reference is not None
         and isinstance(ctx.reference.resolved, discord.Message)
         and ctx.reference.resolved.author == bot.user
     )
@@ -293,17 +288,15 @@ async def stats(interaction: discord.Interaction):
     images_dir = Path(f"./data/{interaction.guild_id}/images")
     images_dir.mkdir(parents=True, exist_ok=True)
 
-    images = os.listdir(images_dir)
-
-    images = len(os.listdir(f"./data/{interaction.guild_id}/images"))
+    images = len(os.listdir(images_dir))
 
     if interaction.guild:
-        guild_name = interaction.guild.name
+        name = interaction.guild.name
     else:
-        guild_name = interaction.guild_id
+        name = interaction.guild_id
 
     embed = discord.Embed(
-        title=f"Статистика ({guild_name})",
+        title=f"Статистика ({name})",
         description="Количество изученных данных",
         color=discord.Color.orange(),
     )
