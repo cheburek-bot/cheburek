@@ -19,8 +19,8 @@ Run Cheburek using Docker Compose:
    ```yaml
    services:
      cheburek:
-       image: ghcr.io/zorreth/cheburek:latest
-       restart: always
+       image: ghcr.io/cheburek-bot/cheburek:latest
+       restart: unless-stopped
        environment:
          - TOKEN=<your bot token>
          - START_WORD_TYPE=random
