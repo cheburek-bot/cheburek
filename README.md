@@ -5,7 +5,7 @@ Discord bot that generates text messages using the Markov chain.
 ## Features
 
 - Per-server data storage (words & images)
-- Text generation based on messages sent by users
+- Text generation based on messages sent by users (see [my blog post](https://zorreth.com/blog/markov-chains/))
 - Learned words & word connections statistics
 - Meme generation
 
