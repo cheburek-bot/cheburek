@@ -137,16 +137,28 @@ name = "cheburek"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "pillow" },
+    { name = "cheburek-core" },
     { name = "py-cord" },
     { name = "python-dotenv" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "pillow", specifier = ">=12.3.0" },
+    { name = "cheburek-core", specifier = ">=1.0.0" },
     { name = "py-cord", specifier = ">=2.8.1" },
     { name = "python-dotenv", specifier = ">=1.2.4" },
+]
+
+[[package]]
+name = "cheburek-core"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pillow" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/11/0d/8fc2c52d3d43ab8ff7c35735c4fae270f90faebb1ecef91e0bed3723ef18/cheburek_core-1.0.0.tar.gz", hash = "sha256:7ce6969d6f18395f231c0edd07ccf58fdc0261c1a505e3181fedf546ea6f0b0c", size = 2847, upload-time = "2026-10-14T10:31:36.932Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/63/1c/1b46cff9a9ba4c8f6a1ef781a888caa925a3a8668e4895439e2c50e938a4/cheburek_core-1.0.0-py3-none-any.whl", hash = "sha256:a812b74d77b5130243f42ba251067fc994c71c91dfb9faf545f2cb0ceaf82507", size = 3677, upload-time = "2026-10-14T10:31:36.175Z" },
 ]
 
 [[package]]
