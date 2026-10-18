@@ -49,11 +49,17 @@ async def on_message(ctx: discord.Message):
     image_dir = Path(f"./data/{ctx.guild.id}/images")
     image_dir.mkdir(parents=True, exist_ok=True)
 
-    allowed_types = {"image/png", "image/jpeg", "image/webp"}
+    gifs_dir = Path(f"./data/{ctx.guild.id}/gifs")
+    gifs_dir.mkdir(parents=True, exist_ok=True)
+
+    image_types = {"image/png", "image/jpeg", "image/webp"}
+    gif_type = "image/gif"
 
     for a in ctx.attachments:
-        if a.content_type in allowed_types:
+        if a.content_type in image_types:
             await a.save(image_dir / str(a.id))
+        elif a.content_type == gif_type:
+            await a.save(gifs_dir / str(a.id))
 
     # Reply when someone mentioned/replied to bot
 
