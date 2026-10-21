@@ -23,7 +23,6 @@ Run Cheburek using Docker Compose:
        restart: unless-stopped
        environment:
          - TOKEN=<your bot token>
-         - START_WORD_TYPE=random
          - MESSAGE_CHANCE=0.05
        volumes:
          - ./data:/usr/src/app/data
